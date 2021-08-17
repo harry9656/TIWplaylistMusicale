@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Musical space</title>
+    <link rel="stylesheet" href="CSS/base.css">
+</head>
+<body>
+<div class="box-container">
+    <img class="song-thumbnail-big" th:src="@{/GetSongThumbnail(songThumbnailId=${song.thumbnailId})}"
+         src="https://images.unsplash.com/photo-1627665048385-1e45ddb02314?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1100&q=80">
+    <h2 th:text="${song.title}" class="song-title">Title of the song</h2>
+    <p th:text="${song.albumTitle}" class="song-detail">albumTitle</p>
+    <p th:text="${song.credit}" class="song-detail">credit</p>
+    <p th:text="${song.publicationYear}" class="song-detail">publicationYear</p>
+    <p th:text="${song.genre}" class="song-detail">genre</p>
+
+    <audio controls="controls">
+        <source th:src="@{/GetSongFile(songFileId=${songFileId})}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <a th:href="@{/Home}" class="black-link">Home</a>
+
+</div>
+</body>
+</html>
