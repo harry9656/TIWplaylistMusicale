@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Musical space</title>
+    <link rel="stylesheet" href="CSS/base.css">
+</head>
+<body>
+<div class="box-container">
+    <div class="form">
+        <h2>Login to MusicalSpace</h2>
+        <form action="CheckLogin" method="POST" class="login-form">
+            <div class="form-label-input-container">
+                <label for="username" class="form-label">Username</label>
+                <input class="form-input" id="username" type="text" name="username" required>
+            </div>
+            <div class="form-label-input-container">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="psw" required><br>
+            </div>
+            <button>login</button>
+            <p th:text=" ${errorMsg}" class="message"></p>
+        </form>
+    </div>
+</div>
+</body>
+</html>
