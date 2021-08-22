@@ -2,16 +2,13 @@ package com.harry9656.MusicalSpace.controllers;
 
 import com.harry9656.MusicalSpace.dao.UsersDAO;
 import com.harry9656.MusicalSpace.exceptions.InvalidCredentialException;
+import com.harry9656.MusicalSpace.model.User;
 import com.harry9656.MusicalSpace.utils.ConnectionHandler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
-import org.thymeleaf.util.StringUtils;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,9 +19,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @WebServlet(value = "/CheckLogin", name = "CheckLogin")
+@MultipartConfig
 public class CheckLogin extends HttpServlet {
     private Connection connection = null;
-    private static TemplateEngine templateEngine;
 
     public CheckLogin() {
         super();
@@ -33,12 +30,6 @@ public class CheckLogin extends HttpServlet {
     @Override
     public void init() throws ServletException {
         connection = ConnectionHandler.getConnection(getServletContext());
-        ServletContext servletContext = getServletContext();
-        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-        templateResolver.setTemplateMode(TemplateMode.HTML);
-        templateEngine = new TemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver);
-        templateResolver.setSuffix(".html");
     }
 
     @Override
@@ -49,13 +40,15 @@ public class CheckLogin extends HttpServlet {
             String userName = getEscapedPropertyStringFromRequestOrElseThrowInvalidCredentialException(request, "username");
             String psw = getEscapedPropertyStringFromRequestOrElseThrowInvalidCredentialException(request, "psw");
             UsersDAO userDao = new UsersDAO(connection);
-            request.getSession().setAttribute("user", userDao.getValidatedUser(userName, psw).orElseThrow(() -> new InvalidCredentialException("Username " + userName + " not found")));
-            response.sendRedirect(getServletContext().getContextPath() + "/Home");
+            User validatedUser = userDao.getValidatedUser(userName, psw).orElseThrow(() -> new InvalidCredentialException("Username " + userName + " not found"));
+            request.getSession().setAttribute("user", validatedUser);
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            responseWriter.println(validatedUser.getUserName());
         } catch (InvalidCredentialException invalidCredentialException) {
-            ServletContext servletContext = getServletContext();
-            final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-            ctx.setVariable("errorMsg", invalidCredentialException.getMessage());
-            templateEngine.process("/index.html", ctx, responseWriter);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            responseWriter.println(invalidCredentialException.getMessage());
         }
     }
 

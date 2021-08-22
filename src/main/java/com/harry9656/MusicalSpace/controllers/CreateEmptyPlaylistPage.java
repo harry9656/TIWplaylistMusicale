@@ -6,6 +6,7 @@ import com.harry9656.MusicalSpace.utils.ConnectionHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import java.sql.Connection;
 import java.util.Optional;
 
 @WebServlet(name = "CreateEmptyPlaylistPage", value = "/CreateEmptyPlaylistPage")
+@MultipartConfig
 public class CreateEmptyPlaylistPage extends HttpServlet {
     private Connection connection = null;
 
@@ -32,12 +34,18 @@ public class CreateEmptyPlaylistPage extends HttpServlet {
             return;
         }
         long userId = ((User) session.getAttribute("user")).getId();
-        Optional.ofNullable(request.getParameter("playlistTitle"))
-                .filter(StringUtils::isNotBlank)
-                .ifPresent((playlistTitle) -> {
-                    PlaylistDAO playlistDAO = new PlaylistDAO(connection);
-                    playlistDAO.createEmptyPlaylist(playlistTitle, userId);
-                });
-        response.sendRedirect(getServletContext().getContextPath() + "/Home");
+        Optional<String> playlistTitle = Optional.ofNullable(request.getParameter("playlistTitle"))
+                .filter(StringUtils::isNotBlank);
+        if (playlistTitle.isPresent()) {
+            PlaylistDAO playlistDAO = new PlaylistDAO(connection);
+            playlistDAO.createEmptyPlaylist(playlistTitle.get(), userId);
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().println("Ok");
+        } else {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Must provide title of the playlist");
+        }
     }
 }

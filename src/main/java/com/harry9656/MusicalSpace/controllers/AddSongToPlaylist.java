@@ -6,6 +6,7 @@ import com.harry9656.MusicalSpace.utils.ConnectionHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import java.sql.Connection;
 import java.util.Optional;
 
 @WebServlet(name = "AddSongToPlaylist", value = "/AddSongToPlaylist")
+@MultipartConfig
 public class AddSongToPlaylist extends HttpServlet {
     private Connection connection = null;
 
@@ -39,7 +41,9 @@ public class AddSongToPlaylist extends HttpServlet {
         Long playlistId = Long.valueOf(request.getParameter("playlistId"));
         PlaylistDAO playlistDAO = new PlaylistDAO(connection);
         playlistDAO.addSongToPlaylist(songId, playlistId);
-        response.sendRedirect(getServletContext().getContextPath() + "/GoToPlaylistPage?playlistId=" + playlistId);
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().println("Ok");
 
     }
 }

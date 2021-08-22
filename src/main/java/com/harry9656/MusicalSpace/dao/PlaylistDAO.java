@@ -2,6 +2,7 @@ package com.harry9656.MusicalSpace.dao;
 
 import com.harry9656.MusicalSpace.exceptions.InvalidPlaylistDataException;
 import com.harry9656.MusicalSpace.model.PlaylistMetaData;
+import com.harry9656.MusicalSpace.model.PlaylistSongs;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -77,22 +78,24 @@ public class PlaylistDAO {
         }
     }
 
-    public List<Long> getSongIdListByPlaylistId(long playlistId) {
-        String query = "SELECT songId FROM playlistsongs WHERE playlistId=?";
+    public List<PlaylistSongs> getSongIdListByPlaylistId(long playlistId) {
+        String query = "SELECT playlistId, songId, orderWeight FROM playlistsongs WHERE playlistId=?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, playlistId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                List<Long> songIdListContainedInPlaylist = new ArrayList<>();
+                List<PlaylistSongs> songsInPlaylist = new ArrayList<>();
                 while (resultSet.next()) {
-                    songIdListContainedInPlaylist.add(resultSet.getLong("songId"));
+                    PlaylistSongs playlistSong = new PlaylistSongs(resultSet.getLong("playlistId"),
+                            resultSet.getLong("songId"),
+                            resultSet.getLong("orderWeight"));
+                    songsInPlaylist.add(playlistSong);
                 }
-                return songIdListContainedInPlaylist;
+                return songsInPlaylist;
             }
         } catch (SQLException sqlException) {
             throw new InvalidPlaylistDataException("Unable to load songs of playlist|" + playlistId, sqlException);
         }
     }
-
 
     public void addSongToPlaylist(long songId, long playlistId) {
         String query = "INSERT INTO playlistsongs (playlistId, songId) VALUES (?,?)";
@@ -106,5 +109,26 @@ public class PlaylistDAO {
         } catch (SQLException sqlException) {
             throw new InvalidPlaylistDataException("Unable to add song in playlist|" + playlistId, sqlException);
         }
+    }
+
+    public void updatePlaylistOrder(List<PlaylistSongs> songs) {
+        String query = "UPDATE musicalspace.playlistsongs t SET t.orderWeight = ? WHERE t.playlistId = ? AND t.songId = ?";
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = null;
+            preparedStatement = connection.prepareStatement(query);
+            for (PlaylistSongs song : songs) {
+                preparedStatement.setLong(1, song.getOrderWeight());
+                preparedStatement.setLong(2, song.getPlaylistId());
+                preparedStatement.setLong(3, song.getSongId());
+                preparedStatement.addBatch();
+            }
+            int[] count = preparedStatement.executeBatch();
+            connection.commit();
+        } catch (SQLException exception) {
+            throw new InvalidPlaylistDataException("Unable to update the order of playlist");
+        }
+
+
     }
 }
