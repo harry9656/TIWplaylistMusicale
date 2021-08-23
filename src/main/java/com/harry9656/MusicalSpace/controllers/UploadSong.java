@@ -74,7 +74,7 @@ public class UploadSong extends HttpServlet {
             Part filePart = request.getPart(partName);
             String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
             InputStream fileContent = filePart.getInputStream();
-            File tempFile = new File(fileName);
+            File tempFile = File.createTempFile("temp", fileName);
             FileUtils.copyInputStreamToFile(fileContent, tempFile);
             if (!mimetype.equals(getServletContext().getMimeType(tempFile.getCanonicalPath()))) {
                 throw new InvalidSongDataException("Upload correct file types");
