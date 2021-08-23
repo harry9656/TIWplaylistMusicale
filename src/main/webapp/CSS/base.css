@@ -135,6 +135,7 @@ ul li, .black-link {
     align-content: center;
     align-items: stretch;
     text-decoration: none;
+    cursor: pointer;
 }
 
 ul li {
@@ -155,15 +156,9 @@ ul li a:nth-child(2) {
     text-align: start;
 }
 
-/*ul a, ul a:hover, ul a:focus, ul a:active {*/
-/*    text-decoration: none;*/
-/*    color: inherit;*/
-/*    background: #f2f2f2;*/
-/*}*/
-
 
 ul li a:nth-child(2):hover {
-    background: #b3b3b3;
+    color: #43A047;
 }
 
 .two-column {
@@ -244,5 +239,5 @@ ul li a:nth-child(2):hover {
 }
 
 .dragover {
-    border: 2px dashed #ff0000;
+    border: 2px dashed #43A047FF;
 }

@@ -58,27 +58,7 @@ public class PlaylistDAO {
         }
     }
 
-    public Optional<PlaylistMetaData> getPlaylistById(long playlistId) {
-        String query = "SELECT playlistId, title, creationDate, userId FROM playlistmetadata WHERE playlistId=?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setLong(1, playlistId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return Optional.of(new PlaylistMetaData(
-                            resultSet.getLong("playlistId"),
-                            resultSet.getString("title"),
-                            resultSet.getDate("creationDate"),
-                            resultSet.getLong("userId")
-                    ));
-                }
-                return Optional.empty();
-            }
-        } catch (SQLException sqlException) {
-            throw new InvalidPlaylistDataException("Problem getting playlist with Id|" + playlistId, sqlException);
-        }
-    }
-
-    public List<PlaylistSongs> getSongIdListByPlaylistId(long playlistId) {
+    public List<PlaylistSongs> getPlaylistSongsListByPlaylistId(long playlistId) {
         String query = "SELECT playlistId, songId, orderWeight FROM playlistsongs WHERE playlistId=?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, playlistId);

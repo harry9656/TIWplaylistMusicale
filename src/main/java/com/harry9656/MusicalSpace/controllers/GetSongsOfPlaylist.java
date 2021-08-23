@@ -45,7 +45,7 @@ public class GetSongsOfPlaylist extends HttpServlet {
             return;
         }
         PlaylistDAO playlistDAO = new PlaylistDAO(connection);
-        List<PlaylistSongs> playlistSongs = playlistDAO.getSongIdListByPlaylistId(Long.parseLong(request.getParameter("playlistId")));
+        List<PlaylistSongs> playlistSongs = playlistDAO.getPlaylistSongsListByPlaylistId(Long.parseLong(request.getParameter("playlistId")));
         SongsDAO songsDAO = new SongsDAO(connection);
         List<SongMetaData> songs = songsDAO.getSongsMetaDataById(playlistSongs.stream().map(PlaylistSongs::getSongId).collect(Collectors.toList()));
         Map<String, List<?>> result = new HashMap<>();
