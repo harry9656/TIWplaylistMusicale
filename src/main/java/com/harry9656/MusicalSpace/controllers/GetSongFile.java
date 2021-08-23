@@ -3,6 +3,7 @@ package com.harry9656.MusicalSpace.controllers;
 import com.harry9656.MusicalSpace.dao.SongsDAO;
 import com.harry9656.MusicalSpace.exceptions.InvalidSongDataException;
 import com.harry9656.MusicalSpace.utils.ConnectionHandler;
+import org.apache.commons.io.FileUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +43,10 @@ public class GetSongFile extends HttpServlet {
                 .map(Long::valueOf)
                 .orElseThrow(() -> new InvalidSongDataException("Song not found"));
         SongsDAO songsDAO = new SongsDAO(connection);
-        try (InputStream in = new DataInputStream(new FileInputStream(songsDAO.getSongFileById(songFileId).getSong()));
+        File song = songsDAO.getSongFileById(songFileId).getSong();
+        resp.setHeader("Content-Length", String.valueOf(FileUtils.sizeOf(song)));
+        resp.setHeader("Accept-Ranges", "bytes");
+        try (InputStream in = new DataInputStream(new FileInputStream(song));
              OutputStream out = resp.getOutputStream()) {
 
             byte[] buffer = new byte[1048];
