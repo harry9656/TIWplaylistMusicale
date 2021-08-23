@@ -2,6 +2,7 @@ package com.harry9656.MusicalSpace.controllers;
 
 import com.harry9656.MusicalSpace.dao.SongsDAO;
 import com.harry9656.MusicalSpace.exceptions.InvalidSongDataException;
+import com.harry9656.MusicalSpace.model.User;
 import com.harry9656.MusicalSpace.utils.ConnectionHandler;
 
 import javax.servlet.ServletException;
@@ -9,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,7 +31,12 @@ public class GetSongFile extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-
+        HttpSession session = req.getSession();
+        if (session.isNew() || session.getAttribute("user") == null || !(session.getAttribute("user") instanceof User)) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().close();
+            return;
+        }
         resp.setContentType("audio/mpeg");
         resp.setHeader("Content-disposition", "attachment; filename=song.mp3");
         Long songFileId = Optional.ofNullable(req.getParameter("songFileId"))
