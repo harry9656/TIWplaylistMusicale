@@ -63,9 +63,11 @@ public class UploadSong extends HttpServlet {
                     ((User) session.getAttribute("user")).getId());
             SongsDAO songsDAO = new SongsDAO(connection);
             songsDAO.uploadSong(songMetaData, songFile, songThumbnail);
-            response.sendRedirect(getServletContext().getContextPath() + "/Home?message=Uploaded correctly");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("ok");
         } catch (InvalidSongDataException invalidSongDataException) {
-            response.sendRedirect(getServletContext().getContextPath() + "/Home?message=" + invalidSongDataException.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("ko");
         }
     }
 
